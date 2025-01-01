@@ -5,6 +5,8 @@ import com.spacenerd24.cosmic_controllers.gamestates.ControllerConfigGameState;
 import com.spacenerd24.cosmic_controllers.utils.ControllerUtils;
 import finalforeach.cosmicreach.gamestates.GameState;
 
+import java.awt.*;
+
 public class ClientInitializer implements ClientModInitializer {
 
     @Override
@@ -21,6 +23,12 @@ public class ClientInitializer implements ClientModInitializer {
 
         if (!Constants.precisionMode) {
             Constants.limit = 0.05F;
+        }
+
+        try {
+            Constants.robot = new Robot();
+        } catch (AWTException e) {
+            e.printStackTrace();
         }
     }
 

@@ -34,26 +34,24 @@ public class CControllerListener implements com.badlogic.gdx.controllers.Control
         Constants.LOGGER.info("Button down: {} on {}", buttonCode, controller.getName());
         ControllerMapping mapping = controller.getMapping();
 
-        try {
-            Robot robot = new Robot();
+        Robot robot = Constants.robot;
 
-            if (buttonCode == mapping.buttonB) {
-                robot.keyPress(KeyEvent.VK_SHIFT);
-            } else if (buttonCode == mapping.buttonLeftStick) {
-                robot.keyPress(KeyEvent.VK_CONTROL);
-            } else if (buttonCode == mapping.buttonA) {
-                robot.keyPress(KeyEvent.VK_SPACE);
-            } else if (buttonCode == mapping.buttonR1) {
-                UI.hotbar.selectSlot((short) (UI.hotbar.getSelectedSlotNum() + 1));
-            } else if (buttonCode == mapping.buttonL1) {
-                UI.hotbar.selectSlot((short) (UI.hotbar.getSelectedSlotNum() - 1));
-            } else if (buttonCode == mapping.buttonX) {
-                UI.setInventoryOpen(!UI.isInventoryOpen());
-            } else if (buttonCode == mapping.buttonRightStick) {
-                robot.mousePress(InputEvent.BUTTON2_DOWN_MASK);
-            }
-        } catch (AWTException e) {
-            e.printStackTrace();
+        if (buttonCode == mapping.buttonB) {
+            robot.keyPress(KeyEvent.VK_SHIFT);
+        } else if (buttonCode == mapping.buttonLeftStick) {
+            robot.keyPress(KeyEvent.VK_CONTROL);
+        } else if (buttonCode == mapping.buttonA) {
+            robot.keyPress(KeyEvent.VK_SPACE);
+        } else if (buttonCode == mapping.buttonR1) {
+            UI.hotbar.selectSlot((short) (UI.hotbar.getSelectedSlotNum() + 1));
+        } else if (buttonCode == mapping.buttonL1) {
+            UI.hotbar.selectSlot((short) (UI.hotbar.getSelectedSlotNum() - 1));
+        } else if (buttonCode == mapping.buttonX) {
+            UI.setInventoryOpen(!UI.isInventoryOpen());
+        } else if (buttonCode == mapping.buttonRightStick) {
+            robot.mousePress(InputEvent.BUTTON2_DOWN_MASK);
+        } else if (buttonCode == mapping.buttonStart) {
+            robot.keyPress(KeyEvent.VK_ESCAPE);
         }
 
         return false;
@@ -66,20 +64,16 @@ public class CControllerListener implements com.badlogic.gdx.controllers.Control
 
         ControllerMapping mapping = controller.getMapping();
 
-        try {
-            Robot robot = new Robot();
+        Robot robot = Constants.robot;
 
-            if (buttonCode == mapping.buttonB) {
-                robot.keyRelease(KeyEvent.VK_SHIFT);
-            } else if (buttonCode == mapping.buttonLeftStick) {
-                robot.keyRelease(KeyEvent.VK_CONTROL);
-            } else if (buttonCode == mapping.buttonA) {
-                robot.keyRelease(KeyEvent.VK_SPACE);
-            } else if (buttonCode == mapping.buttonRightStick) {
-                robot.mouseRelease(InputEvent.BUTTON2_DOWN_MASK);
-            }
-        } catch (AWTException e) {
-            e.printStackTrace();
+        if (buttonCode == mapping.buttonB) {
+            robot.keyRelease(KeyEvent.VK_SHIFT);
+        } else if (buttonCode == mapping.buttonLeftStick) {
+            robot.keyRelease(KeyEvent.VK_CONTROL);
+        } else if (buttonCode == mapping.buttonA) {
+            robot.keyRelease(KeyEvent.VK_SPACE);
+        } else if (buttonCode == mapping.buttonRightStick) {
+            robot.mouseRelease(InputEvent.BUTTON2_DOWN_MASK);
         }
 
         return false;
