@@ -1,6 +1,7 @@
 package com.spacenerd24.cosmic_controllers.listeners;
 
 import com.badlogic.gdx.controllers.Controller;
+import com.badlogic.gdx.controllers.ControllerMapping;
 import com.spacenerd24.cosmic_controllers.Constants;
 import finalforeach.cosmicreach.entities.PlayerController;
 import finalforeach.cosmicreach.entities.player.PlayerEntity;
@@ -12,7 +13,11 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
 public class CControllerListener implements com.badlogic.gdx.controllers.ControllerListener {
-    
+
+    private boolean isActiveController(Controller controller) {
+        return Constants.activeController != null && controller.getName().equals(Constants.activeController);
+    }
+
     public void connected(Controller controller) {
         Constants.LOGGER.info("Controller connected: {}", controller.getName());
     }
@@ -22,112 +27,69 @@ public class CControllerListener implements com.badlogic.gdx.controllers.Control
     }
 
     public boolean buttonDown(Controller controller, int buttonCode) {
+        if (!isActiveController(controller)) {
+            return false;
+        }
+
         Constants.LOGGER.info("Button down: {} on {}", buttonCode, controller.getName());
+        ControllerMapping mapping = controller.getMapping();
 
+        try {
+            Robot robot = new Robot();
 
-        switch (buttonCode) {
-            case 0:
-                // Jump
-                try {
-                    Robot robot = new Robot();
-                    robot.keyPress(KeyEvent.VK_SPACE);
-                } catch (AWTException e) {
-                    e.printStackTrace();
-                }                break;
-            case 1:
-                // Crouch
-                try {
-                    Robot robot = new Robot();
-                    robot.keyPress(KeyEvent.VK_SHIFT);
-                } catch (AWTException e) {
-                    e.printStackTrace();
-                }
-
-                break;
-            case 7:
-                try {
-                    Robot robot = new Robot();
-                    robot.keyPress(KeyEvent.VK_CONTROL);
-                } catch (AWTException e) {
-                    e.printStackTrace();
-                }
-                break;
-            case 10:
-                // Right Trigger
+            if (buttonCode == mapping.buttonB) {
+                robot.keyPress(KeyEvent.VK_SHIFT);
+            } else if (buttonCode == mapping.buttonLeftStick) {
+                robot.keyPress(KeyEvent.VK_CONTROL);
+            } else if (buttonCode == mapping.buttonA) {
+                robot.keyPress(KeyEvent.VK_SPACE);
+            } else if (buttonCode == mapping.buttonR1) {
                 UI.hotbar.selectSlot((short) (UI.hotbar.getSelectedSlotNum() + 1));
-                break;
-            case 9:
-                // Left Trigger
+            } else if (buttonCode == mapping.buttonL1) {
                 UI.hotbar.selectSlot((short) (UI.hotbar.getSelectedSlotNum() - 1));
-                break;
-            case 3:
-                // Triangle
-
-                break;
-            case 2:
-                // Square
-                if (UI.isInventoryOpen()) {
-                    UI.setInventoryOpen(false);
-                } else {
-                    UI.setInventoryOpen(true);
-                }
-                break;
-            case 8:
-                try {
-                    Robot robot = new Robot();
-                    robot.mousePress(InputEvent.BUTTON2_DOWN_MASK);
-                } catch (AWTException e) {
-                    e.printStackTrace();
-                }
-            case 6:
-                // Pause
+            } else if (buttonCode == mapping.buttonX) {
+                UI.setInventoryOpen(!UI.isInventoryOpen());
+            } else if (buttonCode == mapping.buttonRightStick) {
+                robot.mousePress(InputEvent.BUTTON2_DOWN_MASK);
+            }
+        } catch (AWTException e) {
+            e.printStackTrace();
         }
 
         return false;
     }
-    
+
     public boolean buttonUp(Controller controller, int buttonCode) {
-//        Constants.LOGGER.info("Button up: {} on {}", buttonCode, controller.getName());
+        if (!isActiveController(controller)) {
+            return false;
+        }
 
-        switch (buttonCode) {
-            case 1:
-                try {
-                    Robot robot = new Robot();
-                    robot.keyRelease(KeyEvent.VK_SHIFT);
-                } catch (AWTException e) {
-                    e.printStackTrace();
-                }
+        ControllerMapping mapping = controller.getMapping();
 
-                break;
-            case 7:
-                try {
-                    Robot robot = new Robot();
-                    robot.keyRelease(KeyEvent.VK_CONTROL);
-                } catch (AWTException e) {
-                    e.printStackTrace();
-                }
-                break;
-            case 0:
-                try {
-                    Robot robot = new Robot();
-                    robot.keyRelease(KeyEvent.VK_SPACE);
-                } catch (AWTException e) {
-                    e.printStackTrace();
-                }
-                break;
-            case 8:
-                try {
-                    Robot robot = new Robot();
-                    robot.mouseRelease(InputEvent.BUTTON2_DOWN_MASK);
-                } catch (AWTException e) {
-                    e.printStackTrace();
-                }
+        try {
+            Robot robot = new Robot();
+
+            if (buttonCode == mapping.buttonB) {
+                robot.keyRelease(KeyEvent.VK_SHIFT);
+            } else if (buttonCode == mapping.buttonLeftStick) {
+                robot.keyRelease(KeyEvent.VK_CONTROL);
+            } else if (buttonCode == mapping.buttonA) {
+                robot.keyRelease(KeyEvent.VK_SPACE);
+            } else if (buttonCode == mapping.buttonRightStick) {
+                robot.mouseRelease(InputEvent.BUTTON2_DOWN_MASK);
+            }
+        } catch (AWTException e) {
+            e.printStackTrace();
         }
 
         return false;
     }
-    
+
     public boolean axisMoved(Controller controller, int axisCode, float value) {
+        if (!isActiveController(controller)) {
+            return false;
+        }
+
         if (false) {
             Constants.LOGGER.info("Axis moved: {} on {}, value: {}", axisCode, controller.getName(), value);
         }
@@ -156,7 +118,6 @@ public class CControllerListener implements com.badlogic.gdx.controllers.Control
             try {
                 Robot robot = new Robot();
                 robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-
                 robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
             } catch (AWTException e) {
                 e.printStackTrace();
@@ -167,14 +128,11 @@ public class CControllerListener implements com.badlogic.gdx.controllers.Control
             try {
                 Robot robot = new Robot();
                 robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
-
                 robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
             } catch (AWTException e) {
                 e.printStackTrace();
             }
         }
-
-
 
         return false;
     }

@@ -20,4 +20,6 @@ public class Constants {
 
     public static boolean precisionMode = true;
     public static float limit = 0.0F;
+
+    public static String activeController = "PS5 Controller";
 }

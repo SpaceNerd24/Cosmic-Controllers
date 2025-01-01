@@ -3,12 +3,15 @@ package com.spacenerd24.cosmic_controllers.mixins;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerMapping;
 import com.badlogic.gdx.utils.Array;
+import com.spacenerd24.cosmic_controllers.Constants;
 import finalforeach.cosmicreach.settings.Controls;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.Objects;
 
 @Mixin(Controls.class)
 public class ControlMixin {
@@ -35,11 +38,15 @@ public class ControlMixin {
         float a;
         while (controllersIterator.hasNext()) {
             Controller c = controllersIterator.next();
-            ControllerMapping mapping = c.getMapping();
-            a = c.getAxis(op.getInt(mapping));
-            if (a > 0.05F) {
-                cir.setReturnValue(a);
-                return;
+            if (!Objects.equals(c.getName(), Constants.activeController)) {
+                continue;
+            } else {
+                ControllerMapping mapping = c.getMapping();
+                a = c.getAxis(op.getInt(mapping));
+                if (a > 0.05F) {
+                    cir.setReturnValue(a);
+                    return;
+                }
             }
         }
 
@@ -54,6 +61,9 @@ public class ControlMixin {
         while (controllersIterator.hasNext()) {
             Controller c = controllersIterator.next();
             ControllerMapping mapping = c.getMapping();
+            if (!Objects.equals(c.getName(), Constants.activeController)) {
+                continue;
+            }
             a = c.getAxis(op.getInt(mapping));
             if (a < -0.05F) {
                 cir.setReturnValue(-a);
@@ -71,6 +81,9 @@ public class ControlMixin {
 
         while (controllersIterator.hasNext()) {
             Controller c = controllersIterator.next();
+            if (!Objects.equals(c.getName(), Constants.activeController)) {
+                continue;
+            }
             float curX = c.getAxis(c.getMapping().axisRightX);
             if (Math.abs(curX) > 0.05F) {
                 x += curX;
@@ -87,6 +100,9 @@ public class ControlMixin {
 
         while (controllersIterator.hasNext()) {
             Controller c = controllersIterator.next();
+            if (!Objects.equals(c.getName(), Constants.activeController)) {
+                continue;
+            }
             float curY = c.getAxis(c.getMapping().axisRightY);
             if (Math.abs(curY) > 0.05F) {
                 y += curY;
