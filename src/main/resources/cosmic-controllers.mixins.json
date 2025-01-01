@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.spacenerd24.cosmic_controllers.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "ControlMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
