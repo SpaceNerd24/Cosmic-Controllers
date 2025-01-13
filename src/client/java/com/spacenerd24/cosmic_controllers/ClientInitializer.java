@@ -1,9 +1,7 @@
 package com.spacenerd24.cosmic_controllers;
 
 import com.github.puzzle.core.loader.launch.provider.mod.entrypoint.impls.ClientModInitializer;
-import com.spacenerd24.cosmic_controllers.gamestates.ControllerConfigGameState;
 import com.spacenerd24.cosmic_controllers.utils.ControllerUtils;
-import finalforeach.cosmicreach.gamestates.GameState;
 
 import java.awt.*;
 

@@ -1,6 +1,7 @@
 package com.spacenerd24.cosmic_controllers.listeners;
 
 import com.badlogic.gdx.controllers.Controller;
+import com.badlogic.gdx.controllers.ControllerListener;
 import com.badlogic.gdx.controllers.ControllerMapping;
 import com.spacenerd24.cosmic_controllers.Constants;
 import finalforeach.cosmicreach.entities.PlayerController;
@@ -12,7 +13,7 @@ import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
-public class CControllerListener implements com.badlogic.gdx.controllers.ControllerListener {
+public class CControllerListener implements ControllerListener {
 
     private boolean isActiveController(Controller controller) {
         return Constants.activeController != null && controller.getName().equals(Constants.activeController);
@@ -27,10 +28,6 @@ public class CControllerListener implements com.badlogic.gdx.controllers.Control
     }
 
     public boolean buttonDown(Controller controller, int buttonCode) {
-        if (!isActiveController(controller)) {
-            return false;
-        }
-
         Constants.LOGGER.info("Button down: {} on {}", buttonCode, controller.getName());
         ControllerMapping mapping = controller.getMapping();
 
@@ -58,10 +55,6 @@ public class CControllerListener implements com.badlogic.gdx.controllers.Control
     }
 
     public boolean buttonUp(Controller controller, int buttonCode) {
-        if (!isActiveController(controller)) {
-            return false;
-        }
-
         ControllerMapping mapping = controller.getMapping();
 
         Robot robot = Constants.robot;
@@ -88,44 +81,30 @@ public class CControllerListener implements com.badlogic.gdx.controllers.Control
             Constants.LOGGER.info("Axis moved: {} on {}, value: {}", axisCode, controller.getName(), value);
         }
 
-        try {
-            if (GameState.currentGameState == GameState.IN_GAME && UI.isInventoryOpen() || GameState.currentGameState != GameState.IN_GAME) {
-                Robot robot = new Robot();
-                Point mousePosition = MouseInfo.getPointerInfo().getLocation();
+        if (GameState.currentGameState != GameState.IN_GAME || UI.isInventoryOpen()) {
+            Robot robot = Constants.robot;
+            Point mousePosition = MouseInfo.getPointerInfo().getLocation();
 
-                final int sensitivityX = 25;
-                final int sensitivityY = 25;
+            final int sensitivityX = 25;
+            final int sensitivityY = 25;
 
-                if (axisCode == 2) {
-                    int newX = mousePosition.x + (int) (value * sensitivityX);
-                    robot.mouseMove(newX, mousePosition.y);
-                } else if (axisCode == 3) {
-                    int newY = mousePosition.y + (int) (value * sensitivityY);
-                    robot.mouseMove(mousePosition.x, newY);
-                }
+            if (axisCode == 2) {
+                int newX = mousePosition.x + (int) (value * sensitivityX);
+                robot.mouseMove(newX, mousePosition.y);
+            } else if (axisCode == 3) {
+                int newY = mousePosition.y + (int) (value * sensitivityY);
+                robot.mouseMove(mousePosition.x, newY);
             }
-        } catch (AWTException e) {
-            e.printStackTrace();
         }
 
         if (axisCode == 5 && value <= Constants.limit) {
-            try {
-                Robot robot = new Robot();
-                robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-                robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-            } catch (AWTException e) {
-                e.printStackTrace();
-            }
+            Constants.robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+            Constants.robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
         }
 
         if (axisCode == 4 && value <= Constants.limit) {
-            try {
-                Robot robot = new Robot();
-                robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
-                robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
-            } catch (AWTException e) {
-                e.printStackTrace();
-            }
+            Constants.robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
+            Constants.robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
         }
 
         return false;

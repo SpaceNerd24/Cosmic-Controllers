@@ -24,4 +24,5 @@ public class Constants {
     public static Robot robot;
 
     public static String activeController = "PS5 Controller";
+    public static String activeWarning;
 }
