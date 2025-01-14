@@ -7,7 +7,7 @@ plugins {
 loom {
     splitEnvironmentSourceSets()
     mods {
-        "example-mod" {
+        "Cosmic-Controllers" {
             sourceSet sourceSets.main
             sourceSet sourceSets.client
         }

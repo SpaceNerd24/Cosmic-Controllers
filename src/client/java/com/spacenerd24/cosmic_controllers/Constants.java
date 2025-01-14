@@ -4,6 +4,7 @@ import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.utils.Array;
 import com.spacenerd24.cosmic_controllers.listeners.CControllerListener;
+import com.spacenerd24.cosmic_controllers.listeners.CControllerListenerNEW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +17,8 @@ public class Constants {
     public static Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
 
     public static Array<Controller> controllers;
-    public static Array<CControllerListener> listeners = new Array<>();
+//    public static Array<CControllerListener> listeners = new Array<>();
+    public static Array<CControllerListenerNEW> listeners = new Array<>();
 
     public static boolean precisionMode = true;
     public static float limit = 0.0F;

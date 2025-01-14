@@ -2,6 +2,7 @@ package com.spacenerd24.cosmic_controllers;
 
 import com.github.puzzle.core.loader.launch.provider.mod.entrypoint.impls.ClientModInitializer;
 import com.spacenerd24.cosmic_controllers.utils.ControllerUtils;
+import com.spacenerd24.cosmic_controllers.utils.ScreenUtilis;
 
 import java.awt.*;
 
@@ -28,6 +29,21 @@ public class ClientInitializer implements ClientModInitializer {
         } catch (AWTException e) {
             e.printStackTrace();
         }
+
+        ScreenUtilis.postScreenMessage("Cosmic Controllers Loaded", ScreenUtilis.MessageType.INFO);
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(6000);
+
+                if (Constants.controllers.size == 0) {
+                    ScreenUtilis.postScreenMessage("No Controllers Found", ScreenUtilis.MessageType.WARNING);
+                }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
 }
