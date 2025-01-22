@@ -1,32 +1,25 @@
 package com.spacenerd24.cosmic_controllers.listeners;
 
 import com.badlogic.gdx.controllers.*;
-import com.google.gson.JsonObject;
 import com.spacenerd24.cosmic_controllers.Constants;
 
 import com.spacenerd24.cosmic_controllers.utils.ControllerUtils;
-import org.jline.utils.InputStreamReader;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
 import java.util.*;
 
-import static com.github.puzzle.util.ZipPack.GSON;
-
 public class CControllerListener implements ControllerListener {
-    private final Map<String, Map<String, Integer>> controllerConfigs = new HashMap<>();
-
     public CControllerListener() {
         ControllerUtils.loadControllerConfigs();
     }
 
     private boolean isActiveController(Controller controller) {
-        return Constants.activeController != null && controller.getName().equals(Constants.activeController);
+        return Constants.activeController != null && controller.getUniqueId().equals(Constants.activeController);
     }
 
-    private Map<String, Integer> getControllerConfig(String controllerName) {
-        return controllerConfigs.getOrDefault(controllerName, Map.of());
+    private Map<String, Integer> getControllerConfig(String guid) {
+        return Constants.controllerConfigs.getOrDefault(guid, Map.of());
     }
 
     @Override
@@ -48,9 +41,9 @@ public class CControllerListener implements ControllerListener {
         Constants.LOGGER.info("Button down: {} on {}", buttonCode, controller.getName());
         Robot robot = Constants.robot;
 
-        Map<String, Integer> config = getControllerConfig(controller.getName());
+        Map<String, Integer> config = getControllerConfig(controller.getUniqueId());
         if (config.isEmpty()) {
-            Constants.LOGGER.warn("No configuration found for controller: {}", controller.getName());
+            Constants.LOGGER.warn("No configuration found for controller: {}, GUID: {}", controller.getName(), controller.getUniqueId());
             return false;
         }
 
@@ -78,7 +71,7 @@ public class CControllerListener implements ControllerListener {
         }
 
         Robot robot = Constants.robot;
-        Map<String, Integer> config = getControllerConfig(controller.getName());
+        Map<String, Integer> config = getControllerConfig(controller.getUniqueId());
         if (config.isEmpty()) {
             return false;
         }
@@ -107,7 +100,7 @@ public class CControllerListener implements ControllerListener {
         Robot robot = Constants.robot;
         Point mousePosition = MouseInfo.getPointerInfo().getLocation();
 
-        Map<String, Integer> config = getControllerConfig(controller.getName());
+        Map<String, Integer> config = getControllerConfig(controller.getUniqueId());
         if (config.isEmpty()) {
             return false;
         }

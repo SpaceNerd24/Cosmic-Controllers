@@ -50,45 +50,40 @@ public class ControllerUtils {
 
     public static void loadControllerConfigs() {
         try {
-            ArrayList<String> resourceFiles = new ArrayList<>();
-
-            // Fetch the list of controllers from index.json
+            // Load index.json
             URL indexUrl = new URL("https://raw.githubusercontent.com/SpaceNerd24/Cosmic-Controllers/main/json/index.json");
             InputStream indexInputStream = indexUrl.openStream();
             BufferedReader indexReader = new BufferedReader(new InputStreamReader(indexInputStream, StandardCharsets.UTF_8));
-            JsonArray indexJson = JsonParser.parseReader(indexReader).getAsJsonArray();
-
-            for (JsonElement element : indexJson) {
-                resourceFiles.add(element.getAsString());
-            }
+            JsonObject indexJson = JsonParser.parseReader(indexReader).getAsJsonObject();
             indexReader.close();
 
-            // Process each JSON configuration file
-            for (String resource : resourceFiles) {
-                if (resource.endsWith(".json")) {
-                    URL url = new URL("https://raw.githubusercontent.com/SpaceNerd24/Cosmic-Controllers/main/json/" + resource);
-                    InputStream inputStream = url.openStream();
+            // Iterate through GUIDs in the index
+            for (Map.Entry<String, JsonElement> entry : indexJson.entrySet()) {
+                String controllerName = entry.getKey();
+                String guid = entry.getValue().getAsString();
 
-                    if (inputStream == null) {
-                        throw new RuntimeException("Config file not found: " + resource);
-                    }
+                // Construct the URL for the configuration file
+                URL configUrl = new URL("https://raw.githubusercontent.com/SpaceNerd24/Cosmic-Controllers/main/json/" + guid + ".json");
+                InputStream configInputStream = configUrl.openStream();
 
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-                    JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+                BufferedReader configReader = new BufferedReader(new InputStreamReader(configInputStream, StandardCharsets.UTF_8));
+                JsonObject configJson = JsonParser.parseReader(configReader).getAsJsonObject();
+                configReader.close();
 
-                    for (String controllerName : json.keySet()) {
-                        JsonObject buttons = json.getAsJsonObject(controllerName);
-                        Map<String, Integer> buttonMappings = new HashMap<>();
-
-                        for (String buttonName : buttons.keySet()) {
-                            buttonMappings.put(buttonName, buttons.get(buttonName).getAsInt());
-                        }
-
-                        Constants.controllerConfigs.put(controllerName, buttonMappings);
-                    }
-
-                    reader.close();
+                // Parse the configuration
+                String configGUID = configJson.get("GUID").getAsString();
+                if (!guid.equals(configGUID)) {
+                    throw new RuntimeException("GUID mismatch in config file for: " + controllerName);
                 }
+
+                Map<String, Integer> buttonMappings = new HashMap<>();
+                for (Map.Entry<String, JsonElement> buttonEntry : configJson.entrySet()) {
+                    if (!buttonEntry.getKey().equals("GUID")) {
+                        buttonMappings.put(buttonEntry.getKey(), buttonEntry.getValue().getAsInt());
+                    }
+                }
+
+                Constants.controllerConfigs.put(guid, buttonMappings);
             }
 
             Constants.LOGGER.info("Loaded controller configs");
@@ -96,4 +91,5 @@ public class ControllerUtils {
             throw new RuntimeException("Failed to load controller configs", e);
         }
     }
+
 }
