@@ -11,7 +11,7 @@ import java.util.*;
 
 public class CControllerListener implements ControllerListener {
     public CControllerListener() {
-        ControllerUtils.loadControllerConfigs();
+        ControllerUtils.loadControllerConfigs(Constants.controllerGUIDs);
     }
 
     private boolean isActiveController(Controller controller) {

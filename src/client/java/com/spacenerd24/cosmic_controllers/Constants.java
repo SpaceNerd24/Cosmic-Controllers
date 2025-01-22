@@ -8,7 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -34,4 +36,5 @@ public class Constants {
     public static Map<String, Map<String, Integer>> controllerConfigs = new HashMap<>();
 
     public static final BlockingQueue<ScreenUtilis.Message> messageQueue = new LinkedBlockingQueue<>();
+    public static List<String> controllerGUIDs;
 }

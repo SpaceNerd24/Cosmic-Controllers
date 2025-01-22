@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.net.URL;
 
@@ -48,7 +49,10 @@ public class ControllerUtils {
         Constants.LOGGER.info("Added listener for controller: {}", controller.getName());
     }
 
-    public static void loadControllerConfigs() {
+    public static void loadControllerConfigs(List<String> connectedGuids) {
+        if (true) {
+            return;
+        }
         try {
             // Load index.json
             URL indexUrl = new URL("https://raw.githubusercontent.com/SpaceNerd24/Cosmic-Controllers/main/json/index.json");
@@ -57,39 +61,40 @@ public class ControllerUtils {
             JsonObject indexJson = JsonParser.parseReader(indexReader).getAsJsonObject();
             indexReader.close();
 
-            // Iterate through GUIDs in the index
-            for (Map.Entry<String, JsonElement> entry : indexJson.entrySet()) {
-                String controllerName = entry.getKey();
-                String guid = entry.getValue().getAsString();
+            // Iterate through connected GUIDs to find matching entries in the index
+            for (String connectedGuid : connectedGuids) {
+                if (indexJson.has(connectedGuid)) {
+                    String controllerName = indexJson.get(connectedGuid).getAsString();
 
-                // Construct the URL for the configuration file
-                URL configUrl = new URL("https://raw.githubusercontent.com/SpaceNerd24/Cosmic-Controllers/main/json/" + guid + ".json");
-                InputStream configInputStream = configUrl.openStream();
+                    // Construct the URL for the configuration file
+                    URL configUrl = new URL("https://raw.githubusercontent.com/SpaceNerd24/Cosmic-Controllers/main/json/" + connectedGuid + ".json");
+                    InputStream configInputStream = configUrl.openStream();
 
-                BufferedReader configReader = new BufferedReader(new InputStreamReader(configInputStream, StandardCharsets.UTF_8));
-                JsonObject configJson = JsonParser.parseReader(configReader).getAsJsonObject();
-                configReader.close();
+                    BufferedReader configReader = new BufferedReader(new InputStreamReader(configInputStream, StandardCharsets.UTF_8));
+                    JsonObject configJson = JsonParser.parseReader(configReader).getAsJsonObject();
+                    configReader.close();
 
-                // Parse the configuration
-                String configGUID = configJson.get("GUID").getAsString();
-                if (!guid.equals(configGUID)) {
-                    throw new RuntimeException("GUID mismatch in config file for: " + controllerName);
-                }
-
-                Map<String, Integer> buttonMappings = new HashMap<>();
-                for (Map.Entry<String, JsonElement> buttonEntry : configJson.entrySet()) {
-                    if (!buttonEntry.getKey().equals("GUID")) {
-                        buttonMappings.put(buttonEntry.getKey(), buttonEntry.getValue().getAsInt());
+                    // Parse the configuration
+                    String configGUID = configJson.get("GUID").getAsString();
+                    if (!connectedGuid.equals(configGUID)) {
+                        throw new RuntimeException("GUID mismatch in config file for: " + controllerName);
                     }
+
+                    Map<String, Integer> buttonMappings = new HashMap<>();
+                    for (Map.Entry<String, JsonElement> buttonEntry : configJson.entrySet()) {
+                        if (!buttonEntry.getKey().equals("GUID")) {
+                            buttonMappings.put(buttonEntry.getKey(), buttonEntry.getValue().getAsInt());
+                        }
+                    }
+
+                    Constants.controllerConfigs.put(connectedGuid, buttonMappings);
+                    Constants.LOGGER.info("Loaded config for controller: {}", controllerName);
                 }
-
-                Constants.controllerConfigs.put(guid, buttonMappings);
             }
-
-            Constants.LOGGER.info("Loaded controller configs");
         } catch (Exception e) {
             throw new RuntimeException("Failed to load controller configs", e);
         }
     }
+
 
 }
