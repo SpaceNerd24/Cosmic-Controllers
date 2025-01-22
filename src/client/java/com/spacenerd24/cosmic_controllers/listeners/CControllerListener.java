@@ -1,110 +1,127 @@
 package com.spacenerd24.cosmic_controllers.listeners;
 
-import com.badlogic.gdx.controllers.Controller;
-import com.badlogic.gdx.controllers.ControllerListener;
-import com.badlogic.gdx.controllers.ControllerMapping;
+import com.badlogic.gdx.controllers.*;
+import com.google.gson.JsonObject;
 import com.spacenerd24.cosmic_controllers.Constants;
-import finalforeach.cosmicreach.entities.PlayerController;
-import finalforeach.cosmicreach.entities.player.PlayerEntity;
-import finalforeach.cosmicreach.gamestates.GameState;
-import finalforeach.cosmicreach.ui.UI;
+
+import com.spacenerd24.cosmic_controllers.utils.ControllerUtils;
+import org.jline.utils.InputStreamReader;
 
 import java.awt.*;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
+import java.io.*;
+import java.util.*;
+
+import static com.github.puzzle.util.ZipPack.GSON;
 
 public class CControllerListener implements ControllerListener {
+    private final Map<String, Map<String, Integer>> controllerConfigs = new HashMap<>();
+
+    public CControllerListener() {
+        ControllerUtils.loadControllerConfigs();
+    }
 
     private boolean isActiveController(Controller controller) {
         return Constants.activeController != null && controller.getName().equals(Constants.activeController);
     }
 
+    private Map<String, Integer> getControllerConfig(String controllerName) {
+        return controllerConfigs.getOrDefault(controllerName, Map.of());
+    }
+
+    @Override
     public void connected(Controller controller) {
         Constants.LOGGER.info("Controller connected: {}", controller.getName());
     }
 
+    @Override
     public void disconnected(Controller controller) {
         Constants.LOGGER.info("Controller disconnected: {}", controller.getName());
     }
 
+    @Override
     public boolean buttonDown(Controller controller, int buttonCode) {
+        if (!isActiveController(controller)) {
+            return false;
+        }
+
         Constants.LOGGER.info("Button down: {} on {}", buttonCode, controller.getName());
-        ControllerMapping mapping = controller.getMapping();
-
         Robot robot = Constants.robot;
 
-        if (buttonCode == mapping.buttonB) {
-            robot.keyPress(KeyEvent.VK_SHIFT);
-        } else if (buttonCode == mapping.buttonLeftStick) {
-            robot.keyPress(KeyEvent.VK_CONTROL);
-        } else if (buttonCode == mapping.buttonA) {
-            robot.keyPress(KeyEvent.VK_SPACE);
-        } else if (buttonCode == mapping.buttonR1) {
-            UI.hotbar.selectSlot((short) (UI.hotbar.getSelectedSlotNum() + 1));
-        } else if (buttonCode == mapping.buttonL1) {
-            UI.hotbar.selectSlot((short) (UI.hotbar.getSelectedSlotNum() - 1));
-        } else if (buttonCode == mapping.buttonX) {
-            UI.setInventoryOpen(!UI.isInventoryOpen());
-        } else if (buttonCode == mapping.buttonRightStick) {
-            robot.mousePress(InputEvent.BUTTON2_DOWN_MASK);
-        } else if (buttonCode == mapping.buttonStart) {
-            robot.keyPress(KeyEvent.VK_ESCAPE);
+        Map<String, Integer> config = getControllerConfig(controller.getName());
+        if (config.isEmpty()) {
+            Constants.LOGGER.warn("No configuration found for controller: {}", controller.getName());
+            return false;
+        }
+
+        try {
+            if (buttonCode == config.getOrDefault("BUTTON_A", -1)) {
+                robot.keyPress(KeyEvent.VK_SPACE);
+            } else if (buttonCode == config.getOrDefault("BUTTON_B", -1)) {
+                robot.keyPress(KeyEvent.VK_SHIFT);
+            } else if (buttonCode == config.getOrDefault("BUTTON_LEFTSTICK", -1)) {
+                robot.keyPress(KeyEvent.VK_CONTROL);
+            } else if (buttonCode == config.getOrDefault("BUTTON_RIGHTSTICK", -1)) {
+                robot.mousePress(InputEvent.BUTTON2_DOWN_MASK);
+            }
+        } catch (Exception e) {
+            Constants.LOGGER.error("Error handling button down: {}", e.getMessage());
         }
 
         return false;
     }
 
+    @Override
     public boolean buttonUp(Controller controller, int buttonCode) {
-        ControllerMapping mapping = controller.getMapping();
+        if (!isActiveController(controller)) {
+            return false;
+        }
 
         Robot robot = Constants.robot;
+        Map<String, Integer> config = getControllerConfig(controller.getName());
+        if (config.isEmpty()) {
+            return false;
+        }
 
-        if (buttonCode == mapping.buttonB) {
-            robot.keyRelease(KeyEvent.VK_SHIFT);
-        } else if (buttonCode == mapping.buttonLeftStick) {
-            robot.keyRelease(KeyEvent.VK_CONTROL);
-        } else if (buttonCode == mapping.buttonA) {
-            robot.keyRelease(KeyEvent.VK_SPACE);
-        } else if (buttonCode == mapping.buttonRightStick) {
-            robot.mouseRelease(InputEvent.BUTTON2_DOWN_MASK);
+        try {
+            if (buttonCode == config.getOrDefault("BUTTON_A", -1)) {
+                robot.keyRelease(KeyEvent.VK_SPACE);
+            } else if (buttonCode == config.getOrDefault("BUTTON_B", -1)) {
+                robot.keyRelease(KeyEvent.VK_SHIFT);
+            } else if (buttonCode == config.getOrDefault("BUTTON_RIGHTSTICK", -1)) {
+                robot.mouseRelease(InputEvent.BUTTON2_DOWN_MASK);
+            }
+        } catch (Exception e) {
+            Constants.LOGGER.error("Error handling button up: {}", e.getMessage());
         }
 
         return false;
     }
 
+    @Override
     public boolean axisMoved(Controller controller, int axisCode, float value) {
         if (!isActiveController(controller)) {
             return false;
         }
 
-        if (false) {
-            Constants.LOGGER.info("Axis moved: {} on {}, value: {}", axisCode, controller.getName(), value);
+        Robot robot = Constants.robot;
+        Point mousePosition = MouseInfo.getPointerInfo().getLocation();
+
+        Map<String, Integer> config = getControllerConfig(controller.getName());
+        if (config.isEmpty()) {
+            return false;
         }
 
-        if (GameState.currentGameState != GameState.IN_GAME || UI.isInventoryOpen()) {
-            Robot robot = Constants.robot;
-            Point mousePosition = MouseInfo.getPointerInfo().getLocation();
-
-            final int sensitivityX = 25;
-            final int sensitivityY = 25;
-
-            if (axisCode == 2) {
-                int newX = mousePosition.x + (int) (value * sensitivityX);
+        try {
+            if (axisCode == config.getOrDefault("AXIS_LEFTX", -1)) {
+                int newX = mousePosition.x + (int) (value * 25);
                 robot.mouseMove(newX, mousePosition.y);
-            } else if (axisCode == 3) {
-                int newY = mousePosition.y + (int) (value * sensitivityY);
+            } else if (axisCode == config.getOrDefault("AXIS_LEFTY", -1)) {
+                int newY = mousePosition.y + (int) (value * 25);
                 robot.mouseMove(mousePosition.x, newY);
             }
-        }
-
-        if (axisCode == 5 && value <= Constants.limit) {
-            Constants.robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-            Constants.robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-        }
-
-        if (axisCode == 4 && value <= Constants.limit) {
-            Constants.robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
-            Constants.robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
+        } catch (Exception e) {
+            Constants.LOGGER.error("Error handling axis move: {}", e.getMessage());
         }
 
         return false;

@@ -1,0 +1,11 @@
+{
+    "GUID": "03000000c82d00000951000000000000",
+    "BUTTON_A": 1,
+    "BUTTON_B": 0,
+    "BUTTON_BACK": 10,
+    "AXIS_LEFTX": 0,
+    "AXIS_LEFTY": 2,
+    "AXIS_RIGHTX": 3,
+    "AXIS_RIGHTY": 5,
+    "BUTTON_START": 11
+}
