@@ -26,6 +26,7 @@ public class Constants {
     public static Array<CControllerListener> listeners = new Array<>();
 
     public static boolean precisionMode = true;
+    public static boolean isDebug = false;
     public static float limit = 0.0F;
 
     public static Robot robot;

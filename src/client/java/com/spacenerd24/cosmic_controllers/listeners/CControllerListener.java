@@ -1,25 +1,18 @@
 package com.spacenerd24.cosmic_controllers.listeners;
 
 import com.badlogic.gdx.controllers.*;
+import com.badlogic.gdx.controllers.ControllerMapping;
 import com.spacenerd24.cosmic_controllers.Constants;
-
-import com.spacenerd24.cosmic_controllers.utils.ControllerUtils;
-
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 public class CControllerListener implements ControllerListener {
     public CControllerListener() {
-        ControllerUtils.loadControllerConfigs(Constants.controllerGUIDs);
+        Constants.LOGGER.info("Controller listener initialized.");
     }
 
     private boolean isActiveController(Controller controller) {
         return Constants.activeController != null && controller.getUniqueId().equals(Constants.activeController);
-    }
-
-    private Map<String, Integer> getControllerConfig(String guid) {
-        return Constants.controllerConfigs.getOrDefault(guid, Map.of());
     }
 
     @Override
@@ -40,21 +33,16 @@ public class CControllerListener implements ControllerListener {
 
         Constants.LOGGER.info("Button down: {} on {}", buttonCode, controller.getName());
         Robot robot = Constants.robot;
-
-        Map<String, Integer> config = getControllerConfig(controller.getUniqueId());
-        if (config.isEmpty()) {
-            Constants.LOGGER.warn("No configuration found for controller: {}, GUID: {}", controller.getName(), controller.getUniqueId());
-            return false;
-        }
+        ControllerMapping mapping = controller.getMapping();
 
         try {
-            if (buttonCode == config.getOrDefault("BUTTON_A", -1)) {
+            if (buttonCode == mapping.buttonA) { // Maps to Spacebar
                 robot.keyPress(KeyEvent.VK_SPACE);
-            } else if (buttonCode == config.getOrDefault("BUTTON_B", -1)) {
+            } else if (buttonCode == mapping.buttonB) { // Maps to Shift
                 robot.keyPress(KeyEvent.VK_SHIFT);
-            } else if (buttonCode == config.getOrDefault("BUTTON_LEFTSTICK", -1)) {
+            } else if (buttonCode == mapping.buttonBack) { // Maps to Control
                 robot.keyPress(KeyEvent.VK_CONTROL);
-            } else if (buttonCode == config.getOrDefault("BUTTON_RIGHTSTICK", -1)) {
+            } else if (buttonCode == mapping.buttonStart) { // Maps to Right Mouse Click
                 robot.mousePress(InputEvent.BUTTON2_DOWN_MASK);
             }
         } catch (Exception e) {
@@ -71,17 +59,14 @@ public class CControllerListener implements ControllerListener {
         }
 
         Robot robot = Constants.robot;
-        Map<String, Integer> config = getControllerConfig(controller.getUniqueId());
-        if (config.isEmpty()) {
-            return false;
-        }
+        ControllerMapping mapping = controller.getMapping();
 
         try {
-            if (buttonCode == config.getOrDefault("BUTTON_A", -1)) {
+            if (buttonCode == mapping.buttonA) { // Maps to Spacebar
                 robot.keyRelease(KeyEvent.VK_SPACE);
-            } else if (buttonCode == config.getOrDefault("BUTTON_B", -1)) {
+            } else if (buttonCode == mapping.buttonB) { // Maps to Shift
                 robot.keyRelease(KeyEvent.VK_SHIFT);
-            } else if (buttonCode == config.getOrDefault("BUTTON_RIGHTSTICK", -1)) {
+            } else if (buttonCode == mapping.buttonStart) { // Maps to Right Mouse Click
                 robot.mouseRelease(InputEvent.BUTTON2_DOWN_MASK);
             }
         } catch (Exception e) {
@@ -99,18 +84,14 @@ public class CControllerListener implements ControllerListener {
 
         Robot robot = Constants.robot;
         Point mousePosition = MouseInfo.getPointerInfo().getLocation();
-
-        Map<String, Integer> config = getControllerConfig(controller.getUniqueId());
-        if (config.isEmpty()) {
-            return false;
-        }
+        ControllerMapping mapping = controller.getMapping();
 
         try {
-            if (axisCode == config.getOrDefault("AXIS_LEFTX", -1)) {
+            if (axisCode == mapping.axisLeftX) { // Maps to horizontal mouse movement
                 int newX = mousePosition.x + (int) (value * 25);
                 robot.mouseMove(newX, mousePosition.y);
-            } else if (axisCode == config.getOrDefault("AXIS_LEFTY", -1)) {
-                int newY = mousePosition.y + (int) (value * 25);
+            } else if (axisCode == mapping.axisLeftY) { // Maps to vertical mouse movement
+                int newY = mousePosition.y + (int) (value * -25);
                 robot.mouseMove(mousePosition.x, newY);
             }
         } catch (Exception e) {

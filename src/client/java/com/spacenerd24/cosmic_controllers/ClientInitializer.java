@@ -3,11 +3,13 @@ package com.spacenerd24.cosmic_controllers;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.utils.Array;
 import com.github.puzzle.core.loader.launch.provider.mod.entrypoint.impls.ClientModInitializer;
+import com.github.puzzle.game.common.Puzzle;
 import com.spacenerd24.cosmic_controllers.utils.ControllerUtils;
 import com.spacenerd24.cosmic_controllers.utils.ScreenUtilis;
 import finalforeach.cosmicreach.gamestates.GameState;
 
 import java.awt.*;
+import java.util.Objects;
 
 import static com.spacenerd24.cosmic_controllers.utils.ControllerUtils.getControllers;
 
@@ -21,7 +23,7 @@ public class ClientInitializer implements ClientModInitializer {
 
         Constants.LOGGER.info("Found {} controllers", Constants.controllers.size);
         for (int i = 0; i < Constants.controllers.size; i++) {
-            Constants.LOGGER.info("Controller {}: {}", Constants.controllers.get(i).get, Constants.controllers.get(i).getName());
+            Constants.LOGGER.info("Controller {}: {}", i, Constants.controllers.get(i).getName());
             ControllerUtils.addListener(Constants.controllers.get(i));
         }
 
@@ -33,6 +35,10 @@ public class ClientInitializer implements ClientModInitializer {
             Constants.robot = new Robot();
         } catch (AWTException e) {
             e.printStackTrace();
+        }
+
+        if (Objects.equals(Puzzle.VERSION, "69.69.69")) {
+            Constants.isDebug = true;
         }
 
         new Thread(() -> {
